@@ -131,46 +131,51 @@ function main(player)
 			break;
 		end
 
-		if mod(turn+player,2)
+		if mod(turn + player, 2)
 		% computer's turn
-			if turn == 1
-				game(1) = 1;
-				draw(1,1);
-				set(handles.pushbutton1,'visible','off');
-			elseif turn == 2
-				set(handles.text,'String','Let me think...');
-				pause(eps);
-				game = computerMove(game);
+			if turn <= 2
+				move = datasample(find(game == 0), 1);
+				game(move) = 1;
+				draw(move, 1);
+				set(eval(['handles.pushbutton' int2str(move)]), 'visible', 'off');
 			else
-				set(handles.text,'String','Let me think...');
+				set(handles.text, 'String', 'Let me think...');
+				for i = 1:9
+					% disable all buttons
+					set(eval(['handles.pushbutton' int2str(i)]), 'Enable', 'off');
+				end
 				pause(0.5); % in case I'm playing too fast
+				for i = 1:9
+					% re-enable all buttons
+					set(eval(['handles.pushbutton' int2str(i)]), 'Enable', 'on');
+				end
 				game = computerMove(game);
 			end
 		else
 		% player's turn
-			set(handles.text,'String','Your turn now');
+			set(handles.text, 'String', 'Your turn now');
 			uiwait;
 		end
 	end
 
 	for i = 1:9
-		set(eval(['handles.pushbutton' int2str(i)]),'visible','off');
+		set(eval(['handles.pushbutton' int2str(i)]), 'visible', 'off');
 	end
 	
 	switch winCheck(game) % finally it's end
 		case -1
-			set(handles.text,'String','You Win. //WTF');
+			set(handles.text, 'String', 'You Win. //WTF');
 		case 0
-			set(handles.text,'String','It''s a draw.');
+			set(handles.text, 'String', 'It''s a draw.');
 			% use 2k*' to display k*' (k is an integer)
 		case 1
 			drawWinner;
-			set(handles.StartAgain,'visible','off');
-			set(handles.text,'String','I WIN.');
-			set(handles.mock,'visible','on');
+			set(handles.StartAgain, 'visible', 'off');
+			set(handles.text, 'String', 'I WIN.');
+			set(handles.mock, 'visible', 'on');
 			pause(3);
-			set(handles.mock,'visible','off');
-			set(handles.StartAgain,'visible','on');
+			set(handles.mock, 'visible', 'off');
+			set(handles.StartAgain, 'visible', 'on');
 	end
 end % main
 
@@ -197,20 +202,20 @@ function game = computerMove(game)
 
 	if bestMove % best move exists
 		game(bestMove) = 1; % take it!
-		draw(bestMove,1);
+		draw(bestMove, 1);
 		handles = guidata(gcbo);
-		set(eval(['handles.pushbutton' int2str(bestMove)]),'visible','off');
+		set(eval(['handles.pushbutton' int2str(bestMove)]), 'visible', 'off');
 	end
 end % computerMove
 
-function playerMove(game,move)
+function playerMove(game, move)
 % get input from player and make the move
 	global game;
 	game(move) = -1; % make move to matrix
-	draw(move,-1); % also to GUI
+	draw(move, -1); % also to GUI
 end % playerMove
 
-function winner=winCheck(game)
+function winner = winCheck(game)
 % check whether there's a winner
 	win = [1,2,3; 4,5,6; 7,8,9;
 		   1,5,9; 3,5,7;
@@ -229,7 +234,7 @@ function winner=winCheck(game)
 	end
 end % winCheck
 
-function score = miniMax(game,player)
+function score = miniMax(game, player)
 % get the score of a certain move
 	if winCheck(game) ~= 0 % a winner exists
 		score = winCheck(game);
@@ -246,9 +251,9 @@ function score = miniMax(game,player)
 			eog = 0; % found a valid move
 			game(i) = player; % try it
 
-			nowScore = miniMax(game,-player); % get the score
-			maxScore = max(nowScore,maxScore); % compare max
-			minScore = min(nowScore,minScore); % compare min
+			nowScore = miniMax(game, -player); % get the score
+			maxScore = max(nowScore, maxScore); % compare max
+			minScore = min(nowScore, minScore); % compare min
 
 			game(i) = 0; % revert the change
 
@@ -269,16 +274,16 @@ end % miniMax
 
 function drawLines()
 % draw the 4 lines to form the board
-	X = [1/3,2/3];
-	Y = [0,1];
+	X = [1/3, 2/3];
+	Y = [0, 1];
 	hold on;
 	for i = 1:2
-		plot([1,1]*X(i),Y,'k-');
-		plot(Y,[1,1]*X(i),'k-');
+		plot([1, 1] * X(i), Y, 'k-');
+		plot(Y, [1, 1] * X(i), 'k-');
 	end
 end % drawLines
 
-function draw(move,player)
+function draw(move, player)
 % draw the game in GUI (by a figure)
 	centerX = [1/6, 1/2, 5/6;
 			   1/6, 1/2, 5/6;
@@ -288,30 +293,30 @@ function draw(move,player)
 			   1/6, 1/6, 1/6];
 
 	if player == 1
-		drawO([centerX(move),centerY(move)]);
+		drawO([centerX(move), centerY(move)]);
 	else
-		drawX([centerX(move),centerY(move)]);
+		drawX([centerX(move), centerY(move)]);
 	end
 end % draw
 
 function drawO(center)
 % draw an O (computer)
 	hold on;
-	r = 1/8;
-	t = linspace(0,2*pi,10000);
-	x = center(1) + r*cos(t);
-	y = center(2) + r*sin(t);
-	plot(x,y,'k-','LineWidth',10);
+	r = 1 / 8;
+	t = linspace(0, 2*pi, 10000);
+	x = center(1) + r * cos(t);
+	y = center(2) + r * sin(t);
+	plot(x, y, 'k-', 'LineWidth', 10);
 end % drawO
 
 function drawX(center)
 % draw an X (player)
 	hold on;
-	x = [center(1)-1/8,center(1)+1/8];
-	y = [center(2)-1/8,center(2)+1/8];
-	plot(x,y,'k-','LineWidth',10);
-	x = [center(1)+1/8,center(1)-1/8];
-	plot(x,y,'k-','LineWidth',10);
+	x = [center(1)-1/8, center(1)+1/8];
+	y = [center(2)-1/8, center(2)+1/8];
+	plot(x, y, 'k-', 'LineWidth', 10);
+	x = [center(1)+1/8, center(1)-1/8];
+	plot(x, y, 'k-', 'LineWidth', 10);
 end % drawX
 
 function drawWinner(center);
@@ -326,23 +331,23 @@ function drawWinner(center);
 	centerY = [5/6, 5/6, 5/6;
 			   1/2, 1/2, 1/2;
 			   1/6, 1/6, 1/6];
-	center = zeros(3,2);
+	center = zeros(3, 2);
 
 	for i = 1:8
-		if game(win(i,:)) == 1
-			center(:,1) = centerX(win(i,:));
-			center(:,2) = centerY(win(i,:));
+		if game(win(i, :)) == 1
+			center(:, 1) = centerX(win(i, :));
+			center(:, 2) = centerY(win(i, :));
 			break;
 		end
 	end
 
 	hold on;
-	r = 1/8;
-	t = linspace(0,2*pi,10000);
+	r = 1 / 8;
+	t = linspace(0, 2*pi, 10000);
 
 	for i = 1:3
-		x = center(i,1) + r*cos(t);
-		y = center(i,2) + r*sin(t);
-		plot(x,y,'g-','LineWidth',10);
+		x = center(i, 1) + r*cos(t);
+		y = center(i, 2) + r*sin(t);
+		plot(x, y, 'g-', 'LineWidth', 10);
 	end
 end % drawO
